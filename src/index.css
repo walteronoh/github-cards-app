@@ -10,6 +10,8 @@ body{
 }
 .profile-style .user-info{
   margin:10px;
+}
+.profile-style .user-info span{
   font-weight: bold;
 }
 .display-title{

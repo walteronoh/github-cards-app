@@ -16,8 +16,9 @@ class Cards extends React.Component{
     <div className="profile-style">
       <img className="img-responsive col-md-3" alt="github profile" src={this.props.avatar_url}/>
       <div className="user-info">
-        <div>{this.props.name}</div>
-        <div>{this.props.company}</div>      
+        <div><span>Name:</span>{this.props.name===null?'Github User':this.props.name}</div>
+        <div><span>Organization:</span>{this.props.company===null?'GitHub':this.props.company}</div>    
+        <div><span>Projects:</span>{this.props.public_repos}</div>   
       </div>
     </div>
     )
@@ -33,17 +34,26 @@ class Form extends React.Component{
   }
   handleSubmit=(e)=>{
     e.preventDefault();
-    fetch(`https://api.github.com/users/${this.state.username}`).then(resp=>{
-      resp.json().then(data=>{
-        this.props.onSubmit(data);
+    let user=this.state.username.trim();
+    if(user!==''){
+      fetch(`https://api.github.com/users/${user}`).then(resp=>{
+        resp.json().then(data=>{
+          if(data.message){
+            alert(`User ${data.message}`);
+          }else{
+            this.props.onSubmit(data);
+          }
+        })
       })
-    })
+    }else{
+      alert("Username Field Is required");
+    }
   }
   render(){
     return(
       <div>
         <form onSubmit={this.handleSubmit}>
-          <input className="form-control" onChange={event=>this.setState({username:event.target.value})} placeholder="Enter Github Username" type="text"/><br/>
+          <input className="form-control" onChange={event=>this.setState({username:event.target.value})} placeholder="Enter Github Username" type="text" required/><br/>
           <button className="form-control btn btn-info" type="submit">Add Card</button>
         </form>
       </div>
@@ -60,7 +70,7 @@ class App extends React.Component{
   }
   addNewProfile=(profileData)=>{
     this.setState(prevState=>({
-      profile:[...prevState.profile,profileData]
+      profile:[profileData,...prevState.profile]
       })
     );
   }
