@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
+import axios from 'axios';
 
 const CardList=(props)=>(
   <div>
@@ -16,9 +17,10 @@ class Cards extends React.Component{
     <div className="profile-style">
       <img className="img-responsive col-md-3" alt="github profile" src={this.props.avatar_url}/>
       <div className="user-info">
-        <div><span>Name:</span>{this.props.name===null?'Github User':this.props.name}</div>
-        <div><span>Organization:</span>{this.props.company===null?'GitHub':this.props.company}</div>    
-        <div><span>Projects:</span>{this.props.public_repos}</div>   
+        <div><span>Name: </span>{this.props.name?this.props.name:'Github User'}</div>
+        <div><span>Organization: </span>{this.props.company?this.props.company:'Github'}</div>    
+        <div><span>Projects: </span>{this.props.public_repos}</div>   
+        <div><span>URL: </span><a href={this.props.html_url}>Visit Page</a></div> 
       </div>
     </div>
     )
@@ -32,19 +34,22 @@ class Form extends React.Component{
       username:''
     }
   }
-  handleSubmit=(e)=>{
+  // componentDidUpdate(prevProps,prevState){
+  //   if(prevState.username !== this.state.username){
+  //     alert("not same");
+  //   }else{
+  //     alert("same");
+  //   }
+  // }
+  handleSubmit=async(e)=>{
     e.preventDefault();
     let user=this.state.username.trim();
     if(user!==''){
-      fetch(`https://api.github.com/users/${user}`).then(resp=>{
-        resp.json().then(data=>{
-          if(data.message){
-            alert(`User ${data.message}`);
-          }else{
-            this.props.onSubmit(data);
-          }
-        })
-      })
+      axios.get(`https://api.github.com/users/${user}`).then((response)=>{
+        this.props.onSubmit(response.data);
+      }).catch((error)=>{
+          alert(error.message);   
+      });
     }else{
       alert("Username Field Is required");
     }
@@ -68,6 +73,13 @@ class App extends React.Component{
       profile:[]
     }
   }
+  
+  // componentDidUpdate(prevProps,prevState){
+  //   if(prevState.profile !== this.state.profile){
+  //     console.log("not same");
+  //   }
+  // }
+
   addNewProfile=(profileData)=>{
     this.setState(prevState=>({
       profile:[profileData,...prevState.profile]
